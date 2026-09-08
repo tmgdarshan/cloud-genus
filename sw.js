@@ -1,5 +1,6 @@
-/* Cloud Genus service worker — offline app shell + model, runtime-cache the rest */
-const CACHE = 'cloud-genus-v5';
+/* Cloud Genus service worker: caches the app shell and model, runtime-caches the rest */
+const CACHE = 'cloud-genus-v6';
+// only seed42 is prefetched (~23 MB); app.js loads 43 and 44 later and the fetch handler caches them
 const SHELL = [
   './',
   'index.html',
@@ -9,8 +10,6 @@ const SHELL = [
   'manifest.webmanifest',
   'model/labels.json',
   'model/seed42.fp16.onnx',
-  'model/seed43.fp16.onnx',
-  'model/seed44.fp16.onnx',
   'icons/icon-192.png',
   'icons/icon-512.png',
 ];
@@ -32,10 +31,10 @@ self.addEventListener('fetch', (e) => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
 
-  // never cache the weather / geocode APIs
+  // never cache the weather or geocode APIs
   if (url.hostname.includes('open-meteo.com') || url.hostname.includes('bigdatacloud.net')) return;
 
-  // cache-first for everything else (app shell, model, onnxruntime CDN + wasm)
+  // cache-first for everything else (app shell, model, onnxruntime CDN and wasm)
   e.respondWith(
     caches.match(request).then(
       (hit) =>

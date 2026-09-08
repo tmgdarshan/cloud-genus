@@ -1,11 +1,13 @@
-/* Cloud Genus — on-device cloud classifier + local weather context */
+/* Cloud Genus: on-device cloud classifier with local weather context */
 'use strict';
 
 const CDN = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/';
 ort.env.wasm.wasmPaths = CDN;
 ort.env.wasm.numThreads = 1;
 
-const SEEDS = [42, 43, 44];
+// seed42 answers first; seeds 43 and 44 join the average once they load
+const PRIMARY_SEED = 42;
+const EXTRA_SEEDS = [43, 44];
 const MEAN = [0.485, 0.456, 0.406];
 const STD = [0.229, 0.224, 0.225];
 const SIZE = 224;
@@ -32,13 +34,10 @@ async function loadModel() {
   ]);
   LABELS = labels;
   INFO = info;
-  sessions = await Promise.all(
-    SEEDS.map((s) =>
-      ort.InferenceSession.create(`model/seed${s}.fp16.onnx`, {
-        executionProviders: ['wasm'],
-      })
-    )
-  );
+  const mk = (s) =>
+    ort.InferenceSession.create(`model/seed${s}.fp16.onnx`, { executionProviders: ['wasm'] });
+
+  sessions = [await mk(PRIMARY_SEED)];
   modelReady = true;
   $('cam').disabled = $('gal').disabled = false;
   document.querySelectorAll('#capture label').forEach((l) => l.classList.remove('disabled'));
@@ -47,6 +46,11 @@ async function loadModel() {
     pendingFile = null;
     handleFile(f);
   }
+
+  // load the other seeds in the background and add them to the average
+  Promise.allSettled(EXTRA_SEEDS.map(mk)).then((res) => {
+    for (const r of res) if (r.status === 'fulfilled') sessions.push(r.value);
+  });
 }
 
 function preprocess(img) {
@@ -66,9 +70,8 @@ function preprocess(img) {
   return new ort.Tensor('float32', out, [1, 3, SIZE, SIZE]);
 }
 
-/* rough "is this the sky?" check — soft, over-rideable.
-   Analysed at ~512px so text/detail isn't blurred away by aggressive
-   mobile downscaling (that was letting documents through). */
+// rough "is this the sky?" check, override-able by the user
+// runs at ~512px so mobile downscaling does not blur text edges away
 function skyCheck(img) {
   const srcW = img.naturalWidth || 512;
   const srcH = img.naturalHeight || 512;
@@ -88,7 +91,7 @@ function skyCheck(img) {
   try {
     d = ctx.getImageData(0, 0, w, h).data;
   } catch (e) {
-    return { ok: true }; // can't inspect it — don't block
+    return { ok: true }; // can't inspect it, so don't block
   }
 
   const cnt = w * h;
@@ -164,7 +167,7 @@ function handleFile(file) {
     $('photo').src = URL.createObjectURL(file);
     $('verdict').textContent = 'loading the model…';
     $('verdict').classList.add('soft');
-    $('summary').textContent = 'first run downloads ~68 MB, then it works offline';
+    $('summary').textContent = 'first run downloads ~23 MB, then it works offline';
     return;
   }
   lastBlob = file;
@@ -203,7 +206,7 @@ async function run(img, url) {
   try {
     ranked = await classify(img);
   } catch (e) {
-    $('verdict').textContent = 'could not read the model — check your connection and reload';
+    $('verdict').textContent = 'could not read the model, check your connection and reload';
     return;
   }
   lastTop = ranked[0];
@@ -223,7 +226,7 @@ async function run(img, url) {
   $('savemsg').textContent = '';
   $('correct').hidden = false;
 
-  // cloud-only alert straight away; refined once weather is in
+  // show the cloud-only alert now, refine it once weather arrives
   renderAlert(null);
 
   $('wx-body').hidden = true;
@@ -318,7 +321,7 @@ function renderWeather(cur, place) {
   renderAlert(cur);
 }
 
-/* severe-weather / cloud alert banner */
+/* severe weather and cloud alert banner */
 function renderAlert(cur) {
   const code = lastTop.code;
   const wc = cur ? cur.weather_code : null;
@@ -371,7 +374,7 @@ function softNote(code, cur) {
   if (code === 'Cs' || code === 'As') {
     return raining
       ? 'The front this cloud belongs to has arrived.'
-      : 'This often comes ahead of a warm front — rain or snow is plausible within the next 12–24 hours.';
+      : 'This often comes ahead of a warm front. Rain or snow is plausible in the next 12 to 24 hours.';
   }
   if (code === 'Ci' || code === 'Cc') {
     return 'High, fair-weather cloud. Worth noting if it steadily thickens over the next few hours.';
@@ -445,7 +448,7 @@ loadModel().catch((e) => {
   if (l) l.textContent = 'Could not load the model. Reload with a connection.';
   if (pendingFile) {
     $('verdict').classList.remove('soft');
-    $('verdict').textContent = 'model failed to load — reload the page';
+    $('verdict').textContent = 'model failed to load, reload the page';
   }
 });
 
