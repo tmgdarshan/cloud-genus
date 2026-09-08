@@ -1,22 +1,26 @@
 # -*- coding: utf-8 -*-
 """
-Export the CCSN 11-class classifier to ONNX for on-device (browser) inference.
+Export the CCSN 11-class classifier to ONNX for in-browser inference.
 
 Each of the 3 seed checkpoints becomes its own graph that outputs raw logits.
-The app runs all 3, softmaxes, and averages (the ensemble).
+The app runs all 3, softmaxes each, and averages them.
 
-We emit float16 (keep_io_types=True, so JS still feeds/reads float32). float16 halves
-the size and is fully supported by onnxruntime-web's WASM backend — unlike int8 dynamic
-quantization, whose ConvInteger op is not supported in ort-web and silently fails to load.
+Output is float16 with keep_io_types=True, so JS still feeds and reads float32.
+float16 halves the file size and works in the onnxruntime-web WASM backend.
+int8 dynamic quantization does not: its ConvInteger op fails to load in ort-web.
 
-Input : float32 [1, 3, 224, 224]  — resized + ImageNet-normalized (done in JS)
-Output: float32 [1, 11]            — logits
+Input:  float32 [1, 3, 224, 224], resized and ImageNet-normalized in JS.
+Output: float32 [1, 11], logits.
 
-    python app/tools/export_onnx.py
-Outputs: app/model/seed{42,43,44}.fp16.onnx, app/model/labels.json
+    python app/tools/export_onnx.py --ckpt-dir path/to/checkpoints
+
+Checkpoint dir is taken from --ckpt-dir, then $CCSN11_CKPT_DIR, then ./checkpoints.
+It must hold resnet18_ccsn11_seed{42,43,44}.pth.
+Writes app/model/seed{42,43,44}.fp16.onnx and app/model/labels.json.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import os
 from pathlib import Path
@@ -31,10 +35,26 @@ import torch.nn as nn
 from onnxconverter_common import float16
 from torchvision import models
 
-CKPT_DIR = Path("D:/cloud-genus-app/models")
 OUT = Path(__file__).resolve().parents[1] / "model"
 OUT.mkdir(parents=True, exist_ok=True)
 SEEDS = [42, 43, 44]
+
+
+def resolve_ckpt_dir() -> Path:
+    ap = argparse.ArgumentParser(description="Export CCSN-11 ResNet-18 checkpoints to fp16 ONNX.")
+    ap.add_argument(
+        "--ckpt-dir",
+        default=os.environ.get("CCSN11_CKPT_DIR", "checkpoints"),
+        help="dir holding resnet18_ccsn11_seed{42,43,44}.pth "
+        "(default: $CCSN11_CKPT_DIR or ./checkpoints)",
+    )
+    d = Path(ap.parse_args().ckpt_dir).expanduser().resolve()
+    if not d.is_dir():
+        ap.error(f"checkpoint dir not found: {d}")
+    return d
+
+
+CKPT_DIR = resolve_ckpt_dir()
 
 CLASSES = ["Ac", "As", "Cb", "Cc", "Ci", "Cs", "Ct", "Cu", "Ns", "Sc", "St"]
 NAMES = ["Altocumulus", "Altostratus", "Cumulonimbus", "Cirrocumulus", "Cirrus",
