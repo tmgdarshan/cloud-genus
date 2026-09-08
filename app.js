@@ -271,7 +271,8 @@ async function fetchWeather(lat, lon, placeName) {
     const wx = await fetch(
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
         `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,` +
-        `weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover&timezone=auto`
+        `weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover&timeformat=unixtime`,
+      { cache: 'no-cache' } // don't reuse the browser's cached copy (~15 min)
     ).then((r) => r.json());
     let place = placeName;
     if (!place) {
@@ -290,8 +291,10 @@ async function fetchWeather(lat, lon, placeName) {
   }
 }
 
-function timeAgo(iso) {
-  const mins = Math.max(0, Math.round((Date.now() - new Date(iso + 'Z').getTime()) / 60000));
+// cur.time is unix seconds (timeformat=unixtime), so no timezone math is needed
+function timeAgo(epochSec) {
+  const mins = Math.max(0, Math.round((Date.now() - epochSec * 1000) / 60000));
+  if (mins < 1) return 'updated just now';
   if (mins < 60) return `updated ${mins} min ago`;
   return `updated ${Math.round(mins / 60)} h ago`;
 }
