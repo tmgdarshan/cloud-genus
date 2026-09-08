@@ -66,45 +66,70 @@ function preprocess(img) {
   return new ort.Tensor('float32', out, [1, 3, SIZE, SIZE]);
 }
 
-/* rough "is this the sky?" check — soft, over-rideable */
+/* rough "is this the sky?" check — soft, over-rideable.
+   Analysed at ~512px so text/detail isn't blurred away by aggressive
+   mobile downscaling (that was letting documents through). */
 function skyCheck(img) {
-  const n = 160;
-  const c = document.createElement('canvas');
-  c.width = c.height = n;
-  const ctx = c.getContext('2d');
-  ctx.drawImage(img, 0, 0, n, n);
-  const d = ctx.getImageData(0, 0, n, n).data;
+  const srcW = img.naturalWidth || 512;
+  const srcH = img.naturalHeight || 512;
+  const scale = Math.min(1, 512 / Math.max(srcW, srcH));
+  const w = Math.max(64, Math.round(srcW * scale));
+  const h = Math.max(64, Math.round(srcH * scale));
 
-  let sat = 0;
-  let edge = 0;
-  const bright = new Float64Array(n * n);
-  let rgSum = 0, ybSum = 0, rgSq = 0, ybSq = 0;
-  for (let i = 0, p = 0; i < n * n; i++, p += 4) {
+  const c = document.createElement('canvas');
+  c.width = w;
+  c.height = h;
+  const ctx = c.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, 0, 0, w, h);
+
+  let d;
+  try {
+    d = ctx.getImageData(0, 0, w, h).data;
+  } catch (e) {
+    return { ok: true }; // can't inspect it — don't block
+  }
+
+  const cnt = w * h;
+  const luma = new Float64Array(cnt);
+  let sat = 0, rgSum = 0, ybSum = 0, rgSq = 0, ybSq = 0;
+  let vdark = 0, vbright = 0, mid = 0;
+  for (let i = 0, p = 0; i < cnt; i++, p += 4) {
     const r = d[p], g = d[p + 1], b = d[p + 2];
     const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
     sat += mx > 0 ? (mx - mn) / mx : 0;
-    bright[i] = mx;
-    const rg = Math.abs(r - g);
-    const yb = Math.abs(0.5 * (r + g) - b);
+    const L = 0.299 * r + 0.587 * g + 0.114 * b;
+    luma[i] = L;
+    if (L < 35) vdark++;
+    else if (L > 235) vbright++;
+    if (L >= 60 && L <= 210) mid++;
+    const rg = Math.abs(r - g), yb = Math.abs(0.5 * (r + g) - b);
     rgSum += rg; ybSum += yb; rgSq += rg * rg; ybSq += yb * yb;
   }
-  const cnt = n * n;
-  for (let y = 0; y < n; y++) {
-    for (let x = 1; x < n; x++) edge += Math.abs(bright[y * n + x] - bright[y * n + x - 1]);
+
+  let edge = 0;
+  for (let y = 0; y < h; y++) {
+    for (let x = 1; x < w; x++) edge += Math.abs(luma[y * w + x] - luma[y * w + x - 1]);
   }
-  for (let y = 1; y < n; y++) {
-    for (let x = 0; x < n; x++) edge += Math.abs(bright[y * n + x] - bright[(y - 1) * n + x]);
+  for (let y = 1; y < h; y++) {
+    for (let x = 0; x < w; x++) edge += Math.abs(luma[y * w + x] - luma[(y - 1) * w + x]);
   }
+
   const meanSat = sat / cnt;
   const edgeDensity = edge / (2 * cnt);
-  const rgStd = Math.sqrt(rgSq / cnt - (rgSum / cnt) ** 2);
-  const ybStd = Math.sqrt(ybSq / cnt - (ybSum / cnt) ** 2);
-  const colorfulness = Math.sqrt(rgStd ** 2 + ybStd ** 2) +
-    0.3 * Math.sqrt((rgSum / cnt) ** 2 + (ybSum / cnt) ** 2);
+  const brightFrac = vbright / cnt;
+  const midFrac = mid / cnt;
+  const rgStd = Math.sqrt(Math.max(0, rgSq / cnt - (rgSum / cnt) ** 2));
+  const ybStd = Math.sqrt(Math.max(0, ybSq / cnt - (ybSum / cnt) ** 2));
+  const colorfulness =
+    Math.sqrt(rgStd ** 2 + ybStd ** 2) + 0.3 * Math.sqrt((rgSum / cnt) ** 2 + (ybSum / cnt) ** 2);
 
-  // clouds: edgeDensity < ~12, and never both very colorful and very saturated
-  const ok = edgeDensity < 16 && !(colorfulness > 95 && meanSat > 0.6);
-  return { ok };
+  const textLike =
+    edgeDensity > 16 || brightFrac > 0.55 || (brightFrac > 0.4 && midFrac < 0.22);
+  const vivid = colorfulness > 95 && meanSat > 0.6;
+
+  return { ok: !textLike && !vivid };
 }
 
 function softmax(a) {

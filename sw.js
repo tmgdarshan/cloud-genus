@@ -1,5 +1,5 @@
 /* Cloud Genus service worker — offline app shell + model, runtime-cache the rest */
-const CACHE = 'cloud-genus-v4';
+const CACHE = 'cloud-genus-v5';
 const SHELL = [
   './',
   'index.html',
