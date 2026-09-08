@@ -1,7 +1,7 @@
 {
   "Ac": {
     "name": "Altocumulus",
-    "summary": "White or grey patches and rolls in regular waves — a “mackerel sky” — sitting at 2 to 7 km. It rarely produces rain on its own."
+    "summary": "White or grey patches and rolls in regular waves, a \"mackerel sky\", sitting at 2 to 7 km. It rarely produces rain on its own."
   },
   "As": {
     "name": "Altostratus",
@@ -25,7 +25,7 @@
   },
   "Ct": {
     "name": "Contrail",
-    "summary": "A straight white line left by an aircraft near 8 to 12 km — not a natural cloud. When contrails linger and spread out, the upper air is moist."
+    "summary": "A straight white line left by an aircraft near 8 to 12 km, not a natural cloud. When contrails linger and spread out, the upper air is moist."
   },
   "Cu": {
     "name": "Cumulus",
