@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#a9d3f0">
+<title>Cloud Genus</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="sky" aria-hidden="true">
+  <div class="cloud c1"></div><div class="cloud c2"></div>
+  <div class="cloud c3"></div><div class="cloud c4"></div>
+</div>
+
+<main>
+  <h1>Cloud Genus</h1>
+  <p class="lede">Point your camera at the sky and find out what kind of cloud you're looking at.</p>
+
+  <div class="panel">
+    <!-- capture -->
+    <section id="capture">
+      <label class="bigbtn" for="cam">📷 Take a photo</label>
+      <input id="cam" type="file" accept="image/*" capture="environment" hidden>
+      <label class="linkbtn" for="gal">or choose from gallery</label>
+      <input id="gal" type="file" accept="image/*" hidden>
+    </section>
+
+    <!-- result -->
+    <section id="result" hidden>
+      <img id="photo" alt="your sky photo">
+      <div class="reset" id="again">take another photo</div>
+
+      <div id="verdict" class="verdict">reading the sky…</div>
+      <p id="summary" class="summary"></p>
+      <div id="notsky" class="notsky" hidden>
+        <p>This doesn't look like a photo of the sky.</p>
+        <button id="anyway" class="linkbtn">classify it anyway</button>
+      </div>
+
+      <div id="alert" class="alert" hidden></div>
+
+      <div id="weather" class="weather">
+        <div class="wx-head">
+          <span id="wx-place">Local weather</span>
+          <button id="wx-enable" class="linkbtn" hidden>retry location</button>
+        </div>
+        <div id="wx-body" hidden>
+          <div class="wx-now">
+            <strong id="wx-temp"></strong>
+            <span id="wx-desc"></span>
+          </div>
+          <dl id="wx-detail" class="wx-detail"></dl>
+          <p id="wx-note" class="wx-note"></p>
+          <p id="wx-updated" class="wx-updated"></p>
+        </div>
+      </div>
+
+      <div id="correct" class="correct" hidden>
+        Not right?
+        <select id="truelabel"></select>
+        <button id="savebtn" class="linkbtn">save this photo</button>
+        <span id="savemsg"></span>
+      </div>
+    </section>
+  </div>
+
+  <p class="disclaimer">
+    Trained on ground photos of clouds. Best on Cumulonimbus, Contrail and Stratocumulus;
+    weaker on flat overcast skies. Not a substitute for an official forecast or severe-weather warning.
+  </p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

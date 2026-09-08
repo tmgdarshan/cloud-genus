@@ -1,0 +1,75 @@
+:root{
+  --glass:rgba(255,255,255,.46); --glass-strong:rgba(255,255,255,.72);
+  --stroke:rgba(255,255,255,.75); --ink:#33414f; --ink-soft:#7c8b9a;
+  --accent:#6aa9e6; --good:#7fd1a8; --warn:#e8a06a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{
+  font:16px/1.55 ui-rounded,"SF Pro Rounded",system-ui,-apple-system,sans-serif;
+  color:var(--ink); min-height:100vh; overflow-x:hidden;
+  background:linear-gradient(180deg,#a9d3f0 0%,#c8e2f4 32%,#e8f2fa 70%,#f4f9fd 100%);
+  background-attachment:fixed;
+}
+.sky{position:fixed;inset:0;z-index:-1;overflow:hidden}
+.cloud{position:absolute;background:rgba(255,255,255,.72);border-radius:50%;
+  filter:blur(30px);animation:drift linear infinite}
+.c1{width:60vw;height:22vw;top:10%;left:-40%;animation-duration:80s}
+.c2{width:45vw;height:16vw;top:42%;left:-35%;animation-duration:110s;animation-delay:-40s}
+.c3{width:70vw;height:24vw;top:72%;left:-50%;animation-duration:140s;animation-delay:-70s}
+.c4{width:32vw;height:12vw;top:24%;left:-25%;animation-duration:95s;animation-delay:-20s}
+@keyframes drift{to{transform:translateX(180vw)}}
+@media(prefers-reduced-motion:reduce){.cloud{animation:none}}
+
+main{max-width:560px;margin:0 auto;padding:max(28px,env(safe-area-inset-top)) 18px 48px}
+h1{font-size:24px;font-weight:700;margin:0;text-align:center;letter-spacing:.2px}
+.lede{color:var(--ink-soft);font-size:14px;text-align:center;margin:8px 0 24px}
+
+.panel{background:var(--glass);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid var(--stroke);border-radius:26px;padding:22px;
+  box-shadow:0 14px 48px rgba(70,110,150,.2)}
+
+#capture{display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px 0}
+.bigbtn{font-size:18px;font-weight:650;padding:16px 30px;border-radius:16px;cursor:pointer;
+  background:linear-gradient(90deg,#9cc7ec,var(--accent));color:#fff;
+  box-shadow:0 6px 20px rgba(106,169,230,.4);border:none}
+.bigbtn:active{transform:scale(.97)}
+.linkbtn{background:none;border:none;color:var(--accent);font:inherit;font-size:14px;cursor:pointer;padding:4px}
+
+#photo{width:100%;border-radius:16px;border:1px solid var(--stroke);display:block}
+.reset{text-align:center;color:var(--accent);font-size:13px;margin-top:10px;cursor:pointer}
+
+.verdict{margin-top:20px;text-align:center;font-size:28px;font-weight:750}
+.verdict.soft{font-size:15px;font-weight:500;color:var(--ink-soft)}
+.summary{margin:8px 4px 0;text-align:center;font-size:14px;line-height:1.55;color:var(--ink)}
+.notsky{margin-top:14px;text-align:center;font-size:13.5px;color:var(--ink-soft);
+  background:rgba(255,255,255,.4);border:1px solid var(--stroke);border-radius:14px;padding:12px}
+.notsky p{margin:0 0 6px}
+
+.alert{margin-top:16px;border-radius:16px;padding:13px 15px;font-size:14px;line-height:1.5;
+  background:rgba(232,160,106,.22);border:1px solid rgba(232,160,106,.55);color:#8a4a22}
+.alert.severe{background:rgba(224,110,90,.24);border-color:rgba(224,110,90,.6);color:#8f2f22;font-weight:600}
+.alert b{display:block;font-size:11px;letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px}
+
+.weather{margin-top:16px;background:var(--glass-strong);border:1px solid var(--stroke);
+  border-radius:18px;padding:16px}
+.wx-head{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
+#wx-place{font-weight:700;font-size:14px}
+.wx-now{display:flex;align-items:baseline;gap:10px;margin-top:10px}
+.wx-now strong{font-size:30px;font-weight:750}
+.wx-now span{color:var(--ink-soft);font-size:13px}
+.wx-detail{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin:12px 0 0}
+.wx-detail div{display:flex;justify-content:space-between;font-size:13px;
+  border-bottom:1px solid rgba(255,255,255,.5);padding-bottom:4px}
+.wx-detail dt{color:var(--ink-soft)}
+.wx-detail dd{margin:0;font-weight:600}
+.wx-note{margin:12px 0 0;font-size:13px;line-height:1.5;color:var(--ink-soft)}
+.wx-updated{margin:6px 0 0;font-size:11px;color:var(--ink-soft);text-align:right}
+
+.correct{margin-top:16px;font-size:13px;color:var(--ink-soft);display:flex;
+  align-items:center;gap:8px;flex-wrap:wrap}
+select{font:inherit;font-size:13px;padding:6px 10px;border-radius:10px;
+  border:1px solid var(--stroke);background:var(--glass-strong);color:var(--ink)}
+#savemsg{color:var(--good);font-weight:600}
+
+.disclaimer{color:var(--ink-soft);font-size:11.5px;line-height:1.5;text-align:center;margin-top:22px}

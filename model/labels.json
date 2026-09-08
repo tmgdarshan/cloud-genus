@@ -1,0 +1,46 @@
+[
+ {
+  "code": "Ac",
+  "name": "Altocumulus"
+ },
+ {
+  "code": "As",
+  "name": "Altostratus"
+ },
+ {
+  "code": "Cb",
+  "name": "Cumulonimbus"
+ },
+ {
+  "code": "Cc",
+  "name": "Cirrocumulus"
+ },
+ {
+  "code": "Ci",
+  "name": "Cirrus"
+ },
+ {
+  "code": "Cs",
+  "name": "Cirrostratus"
+ },
+ {
+  "code": "Ct",
+  "name": "Contrail"
+ },
+ {
+  "code": "Cu",
+  "name": "Cumulus"
+ },
+ {
+  "code": "Ns",
+  "name": "Nimbostratus"
+ },
+ {
+  "code": "Sc",
+  "name": "Stratocumulus"
+ },
+ {
+  "code": "St",
+  "name": "Stratus"
+ }
+]

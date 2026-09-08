@@ -1,0 +1,46 @@
+{
+  "Ac": {
+    "name": "Altocumulus",
+    "summary": "White or grey patches and rolls in regular waves — a “mackerel sky” — sitting at 2 to 7 km. It rarely produces rain on its own."
+  },
+  "As": {
+    "name": "Altostratus",
+    "summary": "A grey sheet across most of the sky at 2 to 7 km, with the sun showing through weakly as if behind ground glass. It often thickens into rain or snow."
+  },
+  "Cb": {
+    "name": "Cumulonimbus",
+    "summary": "A towering cloud with a hard cauliflower top that spreads into an anvil, reaching from under 2 km to 12 km or higher. It brings heavy showers, lightning, gusts and hail."
+  },
+  "Cc": {
+    "name": "Cirrocumulus",
+    "summary": "Tiny white ripples or grains in sheets with no shading, very high at 5 to 13 km. It does not produce rain."
+  },
+  "Ci": {
+    "name": "Cirrus",
+    "summary": "Thin, wispy white streaks of ice crystals, high at 5 to 13 km. No rain from it directly, but cirrus that steadily thickens can mean rain within a day."
+  },
+  "Cs": {
+    "name": "Cirrostratus",
+    "summary": "A thin milky veil over the whole sky at 5 to 13 km, with a halo ring around the sun or moon. It often comes before rain or snow within a day."
+  },
+  "Ct": {
+    "name": "Contrail",
+    "summary": "A straight white line left by an aircraft near 8 to 12 km — not a natural cloud. When contrails linger and spread out, the upper air is moist."
+  },
+  "Cu": {
+    "name": "Cumulus",
+    "summary": "Detached white cotton-wool puffs with flat grey bases, low below 2 km. Fair weather, unless they build tall through the day into showers."
+  },
+  "Ns": {
+    "name": "Nimbostratus",
+    "summary": "A thick, dark, featureless grey layer that blots out the sun, low to mid level. This is the cloud of steady, prolonged rain or snow."
+  },
+  "Sc": {
+    "name": "Stratocumulus",
+    "summary": "Lumpy grey and white rolls covering the sky with bright gaps between them, low below 2 km. Mostly dry, with light drizzle at most."
+  },
+  "St": {
+    "name": "Stratus",
+    "summary": "A flat, dull grey sheet like fog lifted just off the ground, very low. Grey and gloomy with drizzle at most, and it usually burns off."
+  }
+}
