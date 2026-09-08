@@ -268,10 +268,13 @@ function getWeather() {
 
 async function fetchWeather(lat, lon, placeName) {
   try {
+    // models=icon_seamless picks the highest-resolution DWD ICON grid available
+    // for the location (ICON-D2 2km, then ICON-EU 7km, then ICON global)
     const wx = await fetch(
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
         `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,` +
-        `weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover&timeformat=unixtime`,
+        `weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover` +
+        `&models=icon_seamless&timeformat=unixtime`,
       { cache: 'no-cache' } // don't reuse the browser's cached copy (~15 min)
     ).then((r) => r.json());
     let place = placeName;

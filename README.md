@@ -32,9 +32,10 @@ over HTTPS.
 
 ## Data sources
 
-Weather comes from [Open-Meteo](https://open-meteo.com/), free, no key. Place
-names come from the BigDataCloud reverse-geocode client endpoint, free, no key.
-Neither is cached by the service worker.
+Weather comes from [Open-Meteo](https://open-meteo.com/), free, no key, using the
+DWD ICON model (`icon_seamless`, highest resolution grid available for the spot).
+Place names come from the BigDataCloud reverse-geocode client endpoint, free, no
+key. Neither is cached by the service worker.
 
 ## Deploy
 
